@@ -13,6 +13,10 @@ import com.example.pulstestapp.NewsApplication
 import com.example.pulstestapp.data.NewsItemRepository
 import com.example.pulstestapp.data.network.NewsServerModel
 import com.example.pulstestapp.model.ArticleModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -21,21 +25,38 @@ private const val FIRST_PAGE = 1
 private const val LAST_PAGE = 5
 
 sealed interface NewsUiState{
-    data class Success(val articles: List<ArticleModel>) : NewsUiState
+    data class Success(val articleList: List<ArticleModel>) : NewsUiState
     object Start: NewsUiState
     object Error: NewsUiState
     object Loading: NewsUiState
 }
 
 
+
 class NewsViewModel(private val newsItemRepository: NewsItemRepository) : ViewModel() {
     var newsUiState: NewsUiState by mutableStateOf(NewsUiState.Loading)
         private set
+
+    private val _articleItem = MutableStateFlow(ArticleModel("","","","","",""))
+    val articleItem: StateFlow<ArticleModel> = _articleItem.asStateFlow()
 
     private var currentPage by mutableStateOf(1)
 
     init {
         getNewsList(currentPage)
+    }
+
+    fun updateArticleItem(articleItem: ArticleModel) {
+        _articleItem.update { currentState ->
+            currentState.copy(
+                title = articleItem.title,
+                imageUrl = articleItem.imageUrl,
+                description = articleItem.description,
+                url = articleItem.url,
+                author = articleItem.author,
+                publichedAt = articleItem.publichedAt
+            )
+        }
     }
 
     fun changePage(moveForward: Boolean) {

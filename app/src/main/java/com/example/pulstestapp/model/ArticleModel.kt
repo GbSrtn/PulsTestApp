@@ -1,6 +1,6 @@
 package com.example.pulstestapp.model
 
-class ArticleModel(
+data class ArticleModel(
     val title: String,
     val imageUrl: String,
     val description: String,

@@ -1,5 +1,7 @@
 package com.example.pulstestapp.ui
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,7 +13,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.pulstestapp.NewsApplication
 import com.example.pulstestapp.data.NewsItemRepository
-import com.example.pulstestapp.data.network.NewsServerModel
 import com.example.pulstestapp.model.ArticleModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,24 +27,21 @@ private const val LAST_PAGE = 5
 
 sealed interface NewsUiState{
     data class Success(val articleList: List<ArticleModel>) : NewsUiState
-    object Start: NewsUiState
     object Error: NewsUiState
     object Loading: NewsUiState
 }
-
-
 
 class NewsViewModel(private val newsItemRepository: NewsItemRepository) : ViewModel() {
     var newsUiState: NewsUiState by mutableStateOf(NewsUiState.Loading)
         private set
 
-    private val _articleItem = MutableStateFlow(ArticleModel("","","","","",""))
+    private val _articleItem = MutableStateFlow(ArticleModel("","","","",""))
     val articleItem: StateFlow<ArticleModel> = _articleItem.asStateFlow()
 
     private var currentPage by mutableStateOf(1)
 
     init {
-        getNewsList(currentPage)
+        getNewsList()
     }
 
     fun updateArticleItem(articleItem: ArticleModel) {
@@ -53,29 +51,34 @@ class NewsViewModel(private val newsItemRepository: NewsItemRepository) : ViewMo
                 imageUrl = articleItem.imageUrl,
                 description = articleItem.description,
                 url = articleItem.url,
-                author = articleItem.author,
-                publichedAt = articleItem.publichedAt
+                author = articleItem.author
             )
         }
     }
 
-    fun changePage(moveForward: Boolean) {
+    fun changePage(moveForward: Boolean, context: Context) {
         if (isPageExists(moveForward)){
             if (moveForward) {
                 currentPage += 1
-                getNewsList(currentPage)
+                getNewsList()
             } else {
                 currentPage -= 1
-                getNewsList(currentPage)
+                getNewsList()
+            }
+        } else {
+            if (moveForward) {
+                Toast.makeText(context,"Вы на последней странице", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context,"Вы на первой странице", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    fun getNewsList(page: Int) {
+    fun getNewsList() {
         viewModelScope.launch {
             newsUiState = NewsUiState.Loading
             newsUiState = try {
-                NewsUiState.Success(newsItemRepository.getNewsItemList(page))
+                NewsUiState.Success(newsItemRepository.getNewsItemList(currentPage))
             } catch (e: IOException) {
                 NewsUiState.Error
             } catch (e: HttpException) {
@@ -100,6 +103,4 @@ class NewsViewModel(private val newsItemRepository: NewsItemRepository) : ViewMo
             (currentPage - 1 in FIRST_PAGE..LAST_PAGE)
         }
     }
-
-
 }

@@ -13,14 +13,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.pulstestapp.ui.screens.BottomBar
 import com.example.pulstestapp.ui.screens.DetailsScreen
-import com.example.pulstestapp.ui.screens.LoadingErrorNewsScreen
 import com.example.pulstestapp.ui.screens.MainScreen
 
 enum class NewsAppScreen {
@@ -36,25 +34,34 @@ fun NewsApp(modifier: Modifier = Modifier) {
     val newsViewModel: NewsViewModel = viewModel(factory = NewsViewModel.Factory)
     val articleItem by newsViewModel.articleItem.collectAsState()
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-
-    ) { innerPadding ->
-
+    Surface(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background),
+    ) {
         NavHost(
             navController = navController,
             startDestination = NewsAppScreen.Main.name,
-            modifier = modifier.padding(innerPadding)
         ) {
             composable(route = NewsAppScreen.Main.name) {
-                Surface(
+                val context = LocalContext.current
+                Scaffold(
                     modifier = Modifier
                         .fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
+                    bottomBar = {
+                        BottomBar(
+                            onMoveForward = {
+                                newsViewModel.changePage(it,context)
+                            },
+                            onGetNews = {
+                                newsViewModel.getNewsList()
+                            }
+                        )
+                    }
+                ) { padding ->
                     MainScreen(
+                        modifier.padding(padding),
                         newsUiState = newsViewModel.newsUiState,
-                        newsViewModel = newsViewModel,
                         onArticlesDetailsClicked = {
                             newsViewModel.updateArticleItem(it)
                             navController.navigate(NewsAppScreen.Details.name)

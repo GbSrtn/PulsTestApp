@@ -1,17 +1,19 @@
 package com.example.pulstestapp.ui.theme
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 
+@SuppressLint("ConflictingOnColor")
 private val DarkColorPalette = darkColors(
     background = Cyan900,
     surface = Cyan700,
     onSurface = Grey100,
-    primary = Grey900,
-    onPrimary = Grey100,
+    primary = Cyan900,
+    onPrimary = Grey50,
     secondary = Grey100,
     onError = Blue
 )

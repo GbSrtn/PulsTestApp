@@ -6,6 +6,5 @@ data class ArticleModel(
     val description: String,
     val url: String,
     val author: String,
-    val publichedAt: String
 ) {
 }

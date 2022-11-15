@@ -17,27 +17,20 @@ import coil.request.ImageRequest
 import com.example.pulstestapp.R
 import com.example.pulstestapp.model.ArticleModel
 import com.example.pulstestapp.ui.NewsUiState
-import com.example.pulstestapp.ui.NewsViewModel
 
 
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
     newsUiState: NewsUiState,
-    newsViewModel: NewsViewModel,
     onArticlesDetailsClicked: (ArticleModel) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         when (newsUiState) {
             is NewsUiState.Success -> SuccessNewsScreen(modifier, newsUiState.articleList, onArticlesDetailsClicked)
-            is NewsUiState.Start -> LoadingErrorNewsScreen(modifier, "STARTT")
-            is NewsUiState.Loading -> LoadingErrorNewsScreen(modifier, "LOADING")
-            is NewsUiState.Error -> LoadingErrorNewsScreen(modifier, "ERRRORG")
+            is NewsUiState.Loading -> LoadingErrorNewsScreen(modifier, "Loading...")
+            is NewsUiState.Error -> LoadingErrorNewsScreen(modifier, "Error")
         }
-        BottomBar(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            newsViewModel = newsViewModel,
-        )
     }
 }
 
@@ -105,26 +98,30 @@ fun LoadingErrorNewsScreen(modifier: Modifier = Modifier, info: String) {
 @Composable
 fun BottomBar(
     modifier: Modifier = Modifier,
-    newsViewModel: NewsViewModel,
+    onMoveForward: (Boolean) -> Unit,
+    onGetNews: () -> Unit
 ) {
     Row(
         modifier = modifier
-            .background(MaterialTheme.colors.secondary)
+            .background(MaterialTheme.colors.surface)
+
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround,
 
     ) {
         Button(
-            onClick = { newsViewModel.changePage(false) },
+            onClick = { onMoveForward(false) },
         ) {
             Text("Назад")
         }
         Button(
-            onClick = {  }) {
+            onClick = { onGetNews()}
+        ) {
             Text("Получить новости")
         }
         Button(
-            onClick = { newsViewModel.changePage(true) }) {
+            onClick = { onMoveForward(true) },
+        ) {
             Text("Вперед")
         }
     }

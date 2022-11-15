@@ -10,22 +10,27 @@ data class NewsServerModel(
 ) : Mapper<List<ArticleModel>> {
     data class Articles(
         val source: ArticlesSource,
-        val author: String? = "",
-        val title: String,
-        val description: String,
-        val url: String,
-        val urlToImage: String,
-        val publishedAt: String,
-        val content: String
+        val author: String?,
+        val title: String?,
+        val description: String?,
+        val url: String?,
+        val urlToImage: String?,
+        val publishedAt: String?,
+        val content: String?
     ) {
         data class ArticlesSource(
-            val id: String,
-            val name: String
+            val id: String?,
+            val name: String?
         )
     }
 
     override fun to() = articles.map {
-        ArticleModel(it.title,it.urlToImage,it.description, it.url, it.author ?: "", it.publishedAt)
+        ArticleModel(
+            it.title?: "",
+            it.urlToImage ?: "",
+            it.description ?: "",
+            it.url?: "",
+            it.author ?: "",)
     }
 
 }
